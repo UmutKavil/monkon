@@ -1,0 +1,43 @@
+{
+  "name": "monkon",
+  "version": "0.1.0",
+  "description": "Modern, developer-friendly XAMPP replacement for macOS",
+  "author": "Your Name",
+  "license": "MIT",
+  "main": "cli/monkon.js",
+  "type": "module",
+  "bin": {
+    "monkon": "./cli/monkon.js"
+  },
+  "scripts": {
+    "start": "node cli/monkon.js start",
+    "stop": "node cli/monkon.js stop",
+    "status": "node cli/monkon.js status",
+    "logs": "node cli/monkon.js logs",
+    "config": "node cli/monkon.js config",
+    "dev:electron": "cd electron && npm run dev",
+    "build:electron": "cd electron && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "xampp",
+    "php",
+    "mysql",
+    "apache",
+    "local-development",
+    "macos",
+    "docker"
+  ],
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.2.0",
+    "os-home-dir": "^1.0.0",
+    "table": "^6.8.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0"
+  }
+}
