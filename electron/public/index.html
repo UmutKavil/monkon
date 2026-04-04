@@ -1,99 +1,185 @@
 <!DOCTYPE html>
 <html lang="tr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>⚡ monkon - Masaüstü Uygulaması</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-content">
-          <h1>⚡ monkon</h1>
-          <p>Docker Geliştirme Ortamı</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ monkon NextGen | Dashboard v1.2</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+            <path d="M32 8L48 28H16L32 8Z" fill="#4ade80"/>
+            <path d="M32 28L48 48H16L32 28Z" fill="#06b6d4"/>
+            <circle cx="52" cy="20" r="4" fill="#fbbf24"/>
+          </svg>
+          <span>monkon</span>
         </div>
-        <div class="header-actions">
-          <button class="btn btn-primary" id="startAllBtn">
-            <span class="icon">▶️</span> Tümünü Başlat
-          </button>
-          <button class="btn btn-danger" id="stopAllBtn">
-            <span class="icon">⏹️</span> Tümünü Durdur
-          </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="dashboard">
+          <span class="icon">🏠</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-section="servers">
+          <span class="icon">🖥️</span>
+          <span>Servers</span>
+        </a>
+        <a href="#" class="nav-item" data-section="config">
+          <span class="icon">⚙️</span>
+          <span>Config</span>
+        </a>
+        <a href="#" class="nav-item" data-section="tools">
+          <span class="icon">🔧</span>
+          <span>Tools</span>
+        </a>
+        <a href="#" class="nav-item" data-section="projects">
+          <span class="icon">📁</span>
+          <span>Projects</span>
+        </a>
+        <a href="#" class="nav-item" data-section="support">
+          <span class="icon">💬</span>
+          <span>Support</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="#" class="nav-item support-link">
+          <span class="icon">❓</span>
+          <span>Support</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1 id="pageTitle">Server Status</h1>
         </div>
-      </header>
+        <div class="topbar-actions">
+          <button class="btn btn-icon settings-btn">⚙️</button>
+        </div>
+      </div>
 
-      <!-- Main Content -->
-      <main class="main">
-        <!-- Services Section -->
-        <section class="section">
-          <div class="section-header">
-            <h2>Services Status</h2>
-            <div class="filter-tabs">
-              <button class="tab-btn active" data-filter="all">All</button>
-              <button class="tab-btn" data-filter="running">Running</button>
-              <button class="tab-btn" data-filter="stopped">Stopped</button>
+      <!-- Content Area -->
+      <div class="content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page active">
+          <!-- Server Status Grid -->
+          <div class="section">
+            <h2>Server Status</h2>
+            <div class="servers-list" id="serversList">
+              <div class="loading">
+                <div class="spinner"></div>
+                <p>Sunucular yükleniyor...</p>
+              </div>
             </div>
           </div>
 
-          <div class="services-grid" id="servicesContainer">
-            <!-- Services will be populated here -->
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>Loading services...</p>
+          <!-- Performance & Activity -->
+          <div class="grid-2">
+            <div class="section">
+              <h2>Server Performance</h2>
+              <div class="performance-chart">
+                <div class="chart-placeholder">
+                  <p>CPU: 26% | Memory: 6.8 GB | Active: 41</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Recent Activity</h2>
+              <div class="activity-log" id="activityLog">
+                <div class="activity-item">
+                  <span class="time">[10:32:01]</span>
+                  <span>Apache started</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Servers Section -->
+        <section id="servers" class="page">
+          <div class="section">
+            <h2>All Services</h2>
+            <div class="servers-detailed" id="serversDetailed">
+              <!-- Will be populated by JavaScript -->
             </div>
           </div>
         </section>
 
-        <!-- Logs Section -->
-        <section class="section">
-          <div class="section-header">
-            <h2>Live Logs</h2>
-            <select id="serviceSelect" class="service-select">
-              <option value="">Select service...</option>
-            </select>
-          </div>
-
-          <div class="logs-container" id="logsContainer">
-            <div class="logs-empty">
-              <p>Select a service to view logs</p>
+        <!-- Config Section -->
+        <section id="config" class="page">
+          <div class="section">
+            <h2>Configuration</h2>
+            <div class="config-form">
+              <div class="form-group">
+                <label>PHP Version</label>
+                <select>
+                  <option>8.3</option>
+                  <option>8.2</option>
+                  <option>8.1</option>
+                  <option>8.0</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>MySQL Version</label>
+                <select>
+                  <option>8.0</option>
+                  <option>5.7</option>
+                </select>
+              </div>
+              <button class="btn btn-primary">Save Configuration</button>
             </div>
           </div>
         </section>
 
-        <!-- Quick Info -->
-        <section class="section">
-          <div class="section-header">
-            <h2>Quick Info</h2>
-          </div>
-          <div class="info-grid">
-            <div class="info-card">
-              <h3>Web Root</h3>
-              <p class="monospace">~/monkon/www</p>
-            </div>
-            <div class="info-card">
-              <h3>Apache</h3>
-              <p class="monospace">http://localhost</p>
-            </div>
-            <div class="info-card">
-              <h3>PhpMyAdmin</h3>
-              <p class="monospace">http://localhost:8080</p>
-            </div>
-            <div class="info-card">
-              <h3>MySQL</h3>
-              <p class="monospace">localhost:3306</p>
+        <!-- Tools Section -->
+        <section id="tools" class="page">
+          <div class="section">
+            <h2>Tools</h2>
+            <div class="tools-grid">
+              <div class="tool-card">
+                <h3>PhpMyAdmin</h3>
+                <p>Database management</p>
+                <button class="btn btn-secondary">Open →</button>
+              </div>
+              <div class="tool-card">
+                <h3>Logs Viewer</h3>
+                <p>View service logs</p>
+                <button class="btn btn-secondary">Open →</button>
+              </div>
             </div>
           </div>
         </section>
-      </main>
 
-      <!-- Footer -->
-      <footer class="footer">
-        <p>monkon v0.1.0 • <a href="https://github.com/UmutKavil/monkon" target="_blank">GitHub</a></p>
-      </footer>
-    </div>
+        <!-- Projects Section -->
+        <section id="projects" class="page">
+          <div class="section">
+            <h2>Projects</h2>
+            <p style="color: #888;">~/monkon/www</p>
+            <div style="margin-top: 20px; padding: 20px; background: #2a2a2a; border-radius: 8px;">
+              <p>Web project files will appear here</p>
+            </div>
+          </div>
+        </section>
+      </div>
 
-    <script src="script.js"></script>
-  </body>
+      <!-- Bottom Status Bar -->
+      <div class="statusbar">
+        <span id="statusText">Ready | All services active | PHP 8.3 | Port 80, 3306 | monkon v1.2</span>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
