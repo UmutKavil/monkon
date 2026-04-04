@@ -1,7 +1,7 @@
-FROM php:${PHP_VERSION:-8.3}-apache
+FROM php:${PHP_VERSION:-8.3}-fpm-alpine
 
 # Install required dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     git \
     curl \
     wget \
@@ -9,15 +9,15 @@ RUN apt-get update && apt-get install -y \
     unzip \
     vim \
     nano \
-    build-essential \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
+    build-base \
+    autoconf \
+    freetype-dev \
+    libjpeg-turbo-dev \
     libpng-dev \
     libzip-dev \
     libxml2-dev \
-    libonig-dev \
-    libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
+    oniguruma-dev \
+    sqlite-dev
 
 # Configure PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -30,26 +30,28 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     zip \
     xml \
     mbstring \
-    bcmath
-
-# Enable Apache modules
-RUN a2enmod rewrite
-RUN a2enmod ssl
-RUN a2enmod proxy
-RUN a2enmod proxy_fcgi
+    bcmath \
+    sockets
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Copy PHP configuration
+COPY php.ini /usr/local/etc/php/conf.d/custom.ini
+
 # Set working directory
 WORKDIR /var/www/html
 
-# Expose ports
-EXPOSE 80 443
+# Create health check script
+RUN echo '<?php exit(0);' > /var/www/html/health.php
 
-# Create health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/health.php || exit 1
+# Expose port for FPM
+EXPOSE 9000
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+    CMD php -v >/dev/null 2>&1 || exit 1
+
+# Start PHP-FPM
+CMD ["php-fpm"]
+
