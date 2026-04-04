@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { expandSync } from 'glob';
 import { homedir } from 'os';
 import { join } from 'path';
 import { execa } from 'execa';

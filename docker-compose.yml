@@ -45,11 +45,6 @@ services:
         condition: service_healthy
     networks:
       - monkon-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   # MySQL Service
   mysql:

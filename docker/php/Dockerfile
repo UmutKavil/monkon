@@ -30,8 +30,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     zip \
     xml \
     mbstring \
-    bcmath \
-    sockets
+    bcmath
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

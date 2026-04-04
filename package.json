@@ -34,7 +34,6 @@
     "dotenv": "^16.3.1",
     "execa": "^8.0.1",
     "fs-extra": "^11.2.0",
-    "os-home-dir": "^1.0.0",
     "table": "^6.8.1"
   },
   "devDependencies": {
