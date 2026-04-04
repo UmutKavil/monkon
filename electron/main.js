@@ -31,8 +31,10 @@ function createWindow() {
     mainWindow = null;
   });
 
-  if (process.env.DEBUG) {
+  // Debug mode only when explicitly set
+  if (process.env.DEBUG === 'true') {
     mainWindow.webContents.openDevTools();
+    console.log('🐛 DevTools opened (DEBUG mode)');
   }
 }
 

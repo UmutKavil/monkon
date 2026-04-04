@@ -31,33 +31,32 @@ Modern, developer-friendly alternative to XAMPP for macOS.
 brew install monkon
 
 # Or download DMG from GitHub
-# https://github.com/yourusername/monkon/releases
+# https://github.com/UmutKavil/monkon/releases
 ```
 
 ### Usage
 
+**Easiest Way:**
 ```bash
-# Start all services
-npm run start
-# or
-monkon start
-
-# Open Web Dashboard
-npm run dashboard
-# Open http://localhost:3000
-
-# Check status
-npm run status
-
-# View logs
-npm run logs
-
-# Stop services
-npm run stop
-
-# Configure settings
-npm run config
+./monkon.sh
 ```
+This starts everything with one click! ⚡
+
+**Or manually:**
+
+```bash
+# 1. Start Docker services
+npm run start
+
+# 2. Open desktop app
+npm run dev
+```
+
+### What's Inside
+- ✅ Docker services (PHP, MySQL, Apache, PhpMyAdmin)
+- ✅ Command-line control (`monkon` commands)
+- ✅ Native desktop application (not web!)
+- ✅ Real-time service management
 
 ## 📁 Project Structure
 
