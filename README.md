@@ -9,8 +9,9 @@ Modern, developer-friendly alternative to XAMPP for macOS.
 - ✅ **Easy Installation** - One command via Homebrew or DMG installer
 - ✅ **Docker-Based** - Secure containerization, works on Intel & Apple Silicon Macs
 - ✅ **Multi-Version Support** - Switch between PHP 7.x, 8.x and MySQL versions
-- ✅ **GUI Dashboard** - Desktop app for managing services (coming soon)
+- ✅ **Web Dashboard** - Beautiful UI to manage services in real-time
 - ✅ **CLI Tools** - Full command-line control with `monkon` commands
+- ✅ **Electron GUI** - Desktop app for managing services
 - ✅ **Production-Ready** - Properly configured Apache, PHP-FPM, MySQL
 - ✅ **Open Source** - MIT Licensed
 
@@ -37,40 +38,49 @@ brew install monkon
 
 ```bash
 # Start all services
+npm run start
+# or
 monkon start
 
+# Open Web Dashboard
+npm run dashboard
+# Open http://localhost:3000
+
 # Check status
-monkon status
+npm run status
 
 # View logs
-monkon logs
+npm run logs
 
 # Stop services
-monkon stop
+npm run stop
 
 # Configure settings
-monkon config
+npm run config
 ```
 
 ## 📁 Project Structure
 
 ```
 monkon/
-├── cli/              - Command-line interface
-├── electron/         - Desktop GUI application
-├── docker/           - Docker configurations
+├── cli/              - Command-line interface (start, stop, logs, config)
+├── dashboard/        - Web dashboard with real-time updates (Express + Socket.io)
+├── electron/         - Desktop GUI application (Electron + React)
+├── docker/           - Docker configurations (PHP-FPM, Apache, MySQL)
 ├── scripts/          - Installation & setup scripts
-└── docs/             - Documentation
+├── docs/             - Documentation
+└── README.md         - Project overview
 ```
 
 ## 🛠️ Roadmap
 
 - [x] Project setup & planning
-- [ ] Phase 2: Docker configuration
-- [ ] Phase 3: CLI tool development
-- [ ] Phase 4: Electron GUI
-- [ ] Phase 5: Installer & Homebrew
-- [ ] Phase 6: Testing & v1.0 release
+- [x] Docker configuration (PHP-FPM, MySQL, Apache, PhpMyAdmin)
+- [x] CLI tool development (start, stop, logs, config)
+- [x] Web Dashboard (Express + Socket.io with real-time updates)
+- [ ] Electron GUI refinement
+- [ ] Installer & Homebrew distribution
+- [ ] v1.0 release & testing
 
 ## 📚 Documentation
 

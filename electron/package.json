@@ -1,75 +1,41 @@
 {
-  "name": "monkon-app",
+  "name": "monkon-desktop",
   "version": "0.1.0",
-  "description": "monkon GUI - Desktop management app",
+  "description": "monkon Desktop Application",
   "main": "main.js",
-  "homepage": "./",
+  "type": "module",
   "scripts": {
-    "dev": "concurrently \"electron .\" \"react-scripts start\"",
-    "build": "react-scripts build && electron-builder",
-    "eject": "react-scripts eject",
-    "electron-dev": "electron .",
-    "electron-build": "electron-builder",
-    "preelectron-builder": "npm run build"
+    "dev": "electron .",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "axios": "^1.6.2",
-    "framer-motion": "^10.16.4",
-    "lucide-react": "^0.263.1"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
-    "electron": "^27.0.0",
-    "electron-builder": "^24.6.4",
-    "electron-dev-utils": "^1.12.2",
-    "concurrently": "^8.2.1"
+    "electron": "^latest",
+    "electron-builder": "^latest"
   },
   "build": {
     "appId": "com.monkon.app",
     "productName": "monkon",
     "files": [
-      "build/**/*",
       "main.js",
-      "preload.js"
+      "preload.js",
+      "public/**/*",
+      "node_modules/**/*"
     ],
-    "directories": {
-      "buildResources": "public"
-    },
     "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "category": "public.app-category.development-tools"
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.developer-tools"
     },
     "dmg": {
       "contents": [
-        {
-          "x": 110,
-          "y": 150,
-          "type": "file"
-        },
-        {
-          "x": 240,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        }
+        {"x": 110, "y": 150, "type": "file"},
+        {"x": 240, "y": 150, "type": "link", "path": "/Applications"}
       ]
     }
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }

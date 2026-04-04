@@ -1,31 +1,128 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
-const path = require('path');
-const isDev = require('electron-is-dev');
-const { execSync } = require('child_process');
+import { app, BrowserWindow, Menu, ipcMain } from 'electron';
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isDev = !app.isPackaged;
 
 let mainWindow;
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      enableRemoteModule: false,
-    },
-    icon: path.join(__dirname, 'public/icon.png'),
+// Create Express app and start server
+function startExpressServer() {
+  const expressApp = express();
+  const port = 3000;
+
+  const httpServer = createServer(expressApp);
+  const io = new Server(httpServer, {
+    cors: { origin: '*' }
   });
 
-  const startUrl = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, '../build/index.html')}`;
+  // Serve static files from dashboard
+  expressApp.use(express.static(path.join(__dirname, '../dashboard/public')));
 
-  mainWindow.loadURL(startUrl);
+  // API Routes
+  expressApp.get('/api/services', (req, res) => {
+    try {
+      const output = execSync('docker-compose ps --format json', {
+        cwd: path.join(__dirname, '..'),
+        encoding: 'utf-8'
+      });
+      const containers = JSON.parse(output || '[]');
+      res.json({ success: true, containers });
+    } catch (error) {
+      res.json({ success: false, error: error.message, containers: [] });
+    }
+  });
 
-  if (isDev) {
+  expressApp.post('/api/service/:action/:name', (req, res) => {
+    const { action, name } = req.params;
+    try {
+      if (action === 'start') {
+        execSync(`docker-compose start ${name}`, { cwd: path.join(__dirname, '..') });
+      } else if (action === 'stop') {
+        execSync(`docker-compose stop ${name}`, { cwd: path.join(__dirname, '..') });
+      } else if (action === 'restart') {
+        execSync(`docker-compose restart ${name}`, { cwd: path.join(__dirname, '..') });
+      }
+      broadcastStatus();
+      res.json({ success: true });
+    } catch (error) {
+      res.json({ success: false, error: error.message });
+    }
+  });
+
+  expressApp.post('/api/all/:action', (req, res) => {
+    const { action } = req.params;
+    try {
+      if (action === 'start') {
+        execSync('docker-compose up -d', { cwd: path.join(__dirname, '..') });
+      } else if (action === 'stop') {
+        execSync('docker-compose stop', { cwd: path.join(__dirname, '..') });
+      } else if (action === 'restart') {
+        execSync('docker-compose restart', { cwd: path.join(__dirname, '..') });
+      }
+      broadcastStatus();
+      res.json({ success: true });
+    } catch (error) {
+      res.json({ success: false, error: error.message });
+    }
+  });
+
+  expressApp.get('/api/logs/:service', (req, res) => {
+    const { service } = req.params;
+    const lines = req.query.lines || 100;
+    try {
+      const output = execSync(`docker-compose logs --tail ${lines} ${service}`, {
+        cwd: path.join(__dirname, '..'),
+        encoding: 'utf-8'
+      });
+      res.json({ success: true, logs: output });
+    } catch (error) {
+      res.json({ success: false, error: error.message });
+    }
+  });
+
+  io.on('connection', (socket) => {
+    broadcastStatus();
+  });
+
+  function broadcastStatus() {
+    try {
+      const output = execSync('docker-compose ps --format json', {
+        cwd: path.join(__dirname, '..'),
+        encoding: 'utf-8'
+      });
+      const containers = JSON.parse(output || '[]');
+      io.emit('status-update', { containers });
+    } catch (error) {
+      io.emit('status-error', { error: error.message });
+    }
+  }
+
+  setInterval(broadcastStatus, 5000);
+  httpServer.listen(port);
+}
+
+// Create BrowserWindow
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1300,
+    height: 900,
+    minWidth: 1000,
+    minHeight: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+
+  mainWindow.loadURL('http://localhost:3000');
+  
+  if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
   }
 
@@ -34,7 +131,43 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
+// App events
+app.on('ready', () => {
+  startExpressServer();
+  setTimeout(createWindow, 1000);
+
+  const menu = Menu.buildFromTemplate([
+    {
+      label: '⚡ monkon',
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'quit', accelerator: 'Cmd+Q' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' }
+      ]
+    }
+  ]);
+
+  Menu.setApplicationMenu(menu);
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -45,104 +178,5 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
-  }
-});
-
-// Application Menu
-const createMenu = () => {
-  const template = [
-    {
-      label: 'monkon',
-      submenu: [
-        { label: 'About monkon', click: () => {
-            // TODO: Show about dialog
-          }
-        },
-        { type: 'separator' },
-        { label: 'Preferences', accelerator: 'Cmd+,', click: () => {
-            // TODO: Open preferences
-          }
-        },
-        { type: 'separator' },
-        { label: 'Quit monkon', accelerator: 'Cmd+Q', click: () => app.quit() },
-      ],
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { label: 'Undo', accelerator: 'Cmd+Z' },
-        { label: 'Redo', accelerator: 'Shift+Cmd+Z' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'Cmd+X' },
-        { label: 'Copy', accelerator: 'Cmd+C' },
-        { label: 'Paste', accelerator: 'Cmd+V' },
-      ],
-    },
-    {
-      label: 'View',
-      submenu: [
-        { label: 'Reload', accelerator: 'Cmd+R', click: () => mainWindow.reload() },
-        { label: 'Toggle Developer Tools', accelerator: 'Alt+Cmd+I',
-          click: () => mainWindow.webContents.toggleDevTools() },
-      ],
-    },
-  ];
-
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
-};
-
-app.on('ready', createMenu);
-
-// IPC Handlers for CLI commands
-ipcMain.handle('docker:start', async (event, service) => {
-  try {
-    const cmd = service
-      ? `docker-compose up -d ${service}`
-      : 'docker-compose up -d';
-    execSync(cmd, { cwd: path.join(__dirname, '..') });
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
-
-ipcMain.handle('docker:stop', async (event, service) => {
-  try {
-    const cmd = service
-      ? `docker-compose stop ${service}`
-      : 'docker-compose stop';
-    execSync(cmd, { cwd: path.join(__dirname, '..') });
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
-
-ipcMain.handle('docker:status', async () => {
-  try {
-    const output = execSync('docker-compose ps --format json', {
-      cwd: path.join(__dirname, '..'),
-      encoding: 'utf-8'
-    });
-    const containers = JSON.parse(output || '[]');
-    return { success: true, containers };
-  } catch (error) {
-    return { success: false, error: error.message, containers: [] };
-  }
-});
-
-ipcMain.handle('docker:logs', async (event, service) => {
-  try {
-    const cmd = service
-      ? `docker-compose logs --tail 100 ${service}`
-      : `docker-compose logs --tail 100`;
-    const output = execSync(cmd, {
-      cwd: path.join(__dirname, '..'),
-      encoding: 'utf-8'
-    });
-    return { success: true, logs: output };
-  } catch (error) {
-    return { success: false, error: error.message, logs: '' };
   }
 });
