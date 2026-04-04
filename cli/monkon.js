@@ -11,7 +11,7 @@ const program = new Command();
 
 program
   .name('monkon')
-  .description('🚀 Modern development environment for PHP, MySQL, and Apache')
+  .description('⚡ Modern development environment for PHP, MySQL, and Apache')
   .version('0.1.0');
 
 // Start command
@@ -114,16 +114,40 @@ program
 // Dashboard command
 program
   .command('dashboard')
-  .description('Open monkon desktop application')
+  .description('Start web dashboard at http://localhost:3000')
   .action(() => {
     try {
-      console.log(chalk.blue('\n🖥️   Opening monkon dashboard...\n'));
-      execSync('npm run dev:electron', { 
-        cwd: path.join(__dirname, '..'),
-        stdio: 'inherit'
+      console.log(chalk.blue('\n🌐  Starting monkon dashboard...\n'));
+      
+      // Start Express server
+      const { spawn } = require('child_process');
+      const server = spawn('node', [path.join(__dirname, '../dashboard/server.js')], {
+        detached: true,
+        stdio: 'pipe'
+      });
+      
+      let started = false;
+      server.stdout?.on('data', (data) => {
+        const msg = data.toString();
+        if (!started && msg.includes('monkon Dashboard is running')) {
+          started = true;
+          console.log(chalk.green('✅  Dashboard is running!\n'));
+          console.log(chalk.blue('📱 Open your browser: http://localhost:3000\n'));
+          console.log(chalk.gray('Press Ctrl+C to stop\n'));
+          server.unref();
+        }
+      });
+      server.stderr?.on('data', (data) => {
+        console.error('Server error:', data.toString());
+      });
+
+      // Keep process running
+      process.on('SIGINT', () => {
+        console.log(chalk.yellow('\n\n✋  Shutting down...\n'));
+        process.exit(0);
       });
     } catch (error) {
-      console.error(chalk.red('❌  Error opening dashboard:'), error.message);
+      console.error(chalk.red('❌  Error starting dashboard:'), error.message);
       process.exit(1);
     }
   });
