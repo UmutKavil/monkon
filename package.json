@@ -15,10 +15,8 @@
     "status": "node cli/monkon.js status",
     "logs": "node cli/monkon.js logs",
     "config": "node cli/monkon.js config",
-    "dashboard": "cd dashboard && node server.js",
-    "dev:dashboard": "cd dashboard && npm run dev",
-    "dev:electron": "cd electron && npm run dev",
-    "build:electron": "cd electron && npm run build",
+    "dev": "cd electron && npm run dev",
+    "build": "cd electron && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

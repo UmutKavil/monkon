@@ -1,62 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <title>⚡ monkon</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #1a202c;
-      }
-      #loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        flex-direction: column;
-        gap: 20px;
-        color: #667eea;
-      }
-      .spinner {
-        width: 50px;
-        height: 50px;
-        border: 3px solid #667eea;
-        border-top-color: transparent;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚡ monkon - Masaüstü Uygulaması</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="loading">
-      <div class="spinner"></div>
-      <p>Loading monkon...</p>
-    </div>
-    <div id="app" style="display:none; width:100%; height:100%;">
-      <iframe id="dashboard"></iframe>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <h1>⚡ monkon</h1>
+          <p>Docker Geliştirme Ortamı</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" id="startAllBtn">
+            <span class="icon">▶️</span> Start All
+          </button>
+          <button class="btn btn-danger" id="stopAllBtn">
+            <span class="icon">⏹️</span> Stop All
+          </button>
+          <span class="connection-status" id="connectionStatus">
+            <span class="dot"></span> Connecting...
+          </span>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main">
+        <!-- Services Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2>Services Status</h2>
+            <div class="filter-tabs">
+              <button class="tab-btn active" data-filter="all">All</button>
+              <button class="tab-btn" data-filter="running">Running</button>
+              <button class="tab-btn" data-filter="stopped">Stopped</button>
+            </div>
+          </div>
+
+          <div class="services-grid" id="servicesContainer">
+            <!-- Services will be populated here -->
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading services...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Logs Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2>Live Logs</h2>
+            <select id="serviceSelect" class="service-select">
+              <option value="">Select service...</option>
+            </select>
+          </div>
+
+          <div class="logs-container" id="logsContainer">
+            <div class="logs-empty">
+              <p>Select a service to view logs</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Info -->
+        <section class="section">
+          <div class="section-header">
+            <h2>Quick Info</h2>
+          </div>
+          <div class="info-grid">
+            <div class="info-card">
+              <h3>Web Root</h3>
+              <p class="monospace">~/monkon/www</p>
+            </div>
+            <div class="info-card">
+              <h3>Apache</h3>
+              <p class="monospace">http://localhost</p>
+            </div>
+            <div class="info-card">
+              <h3>PhpMyAdmin</h3>
+              <p class="monospace">http://localhost:8080</p>
+            </div>
+            <div class="info-card">
+              <h3>MySQL</h3>
+              <p class="monospace">localhost:3306</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>monkon v0.1.0 • <a href="https://github.com/UmutKavil/monkon" target="_blank">GitHub</a></p>
+      </footer>
     </div>
 
-    <script>
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          document.getElementById('loading').style.display = 'none';
-          document.getElementById('app').style.display = 'block';
-          document.getElementById('dashboard').src = 'http://localhost:3000';
-        }, 500);
-      });
-    </script>
+    <script src="script.js"></script>
   </body>
 </html>
