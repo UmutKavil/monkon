@@ -1,0 +1,75 @@
+{
+  "name": "monkon-app",
+  "version": "0.1.0",
+  "description": "monkon GUI - Desktop management app",
+  "main": "main.js",
+  "homepage": "./",
+  "scripts": {
+    "dev": "concurrently \"electron .\" \"react-scripts start\"",
+    "build": "react-scripts build && electron-builder",
+    "eject": "react-scripts eject",
+    "electron-dev": "electron .",
+    "electron-build": "electron-builder",
+    "preelectron-builder": "npm run build"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "axios": "^1.6.2",
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.263.1"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4",
+    "electron-dev-utils": "^1.12.2",
+    "concurrently": "^8.2.1"
+  },
+  "build": {
+    "appId": "com.monkon.app",
+    "productName": "monkon",
+    "files": [
+      "build/**/*",
+      "main.js",
+      "preload.js"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.development-tools"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150,
+          "type": "file"
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
