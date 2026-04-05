@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { spawn } from 'child_process';
+import { runDockerCompose } from '../lib/docker.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -14,29 +14,24 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Helper: run a docker-compose command and return stdout
-function runDockerCompose(args) {
-  return new Promise((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
-    const proc = spawn('docker-compose', args, { cwd: PROJECT_ROOT });
+// Simple in-memory rate limiter for the logs endpoint
+const logRateLimit = new Map();
+const LOG_RATE_LIMIT_MS = 2000; // max one logs request per service per 2 seconds
 
-    proc.stdout.on('data', (d) => { stdout += d.toString(); });
-    proc.stderr.on('data', (d) => { stderr += d.toString(); });
-    proc.on('close', (code) => {
-      if (code === 0) {
-        resolve(stdout.trim());
-      } else {
-        reject(new Error(stderr.trim() || `docker-compose exited with code ${code}`));
-      }
-    });
-  });
+function isLogsRateLimited(key) {
+  const now = Date.now();
+  const last = logRateLimit.get(key) || 0;
+  if (now - last < LOG_RATE_LIMIT_MS) {
+    return true;
+  }
+  logRateLimit.set(key, now);
+  return false;
 }
 
 // GET /api/status - get service status
 app.get('/api/status', async (_req, res) => {
   try {
-    const raw = await runDockerCompose(['ps', '--format', 'json']);
+    const raw = await runDockerCompose(['ps', '--format', 'json'], PROJECT_ROOT);
     let containers = [];
     try {
       containers = JSON.parse(raw);
@@ -55,7 +50,7 @@ app.post('/api/start', async (req, res) => {
   const { service } = req.body || {};
   try {
     const args = service ? ['up', '-d', service] : ['up', '-d'];
-    await runDockerCompose(args);
+    await runDockerCompose(args, PROJECT_ROOT);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -67,7 +62,7 @@ app.post('/api/stop', async (req, res) => {
   const { service } = req.body || {};
   try {
     const args = service ? ['stop', service] : ['stop'];
-    await runDockerCompose(args);
+    await runDockerCompose(args, PROJECT_ROOT);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -79,19 +74,24 @@ app.post('/api/restart', async (req, res) => {
   const { service } = req.body || {};
   try {
     const args = service ? ['restart', service] : ['restart'];
-    await runDockerCompose(args);
+    await runDockerCompose(args, PROJECT_ROOT);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// GET /api/logs/:service - get logs for a service
+// GET /api/logs/:service - get logs for a service (rate-limited)
 app.get('/api/logs/:service', async (req, res) => {
   const { service } = req.params;
   const lines = req.query.lines || '100';
+
+  if (isLogsRateLimited(service)) {
+    return res.status(429).json({ success: false, error: 'Too many requests. Please wait before fetching logs again.' });
+  }
+
   try {
-    const output = await runDockerCompose(['logs', '--tail', lines, service]);
+    const output = await runDockerCompose(['logs', '--tail', lines, service], PROJECT_ROOT);
     res.json({ success: true, logs: output });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -99,7 +99,7 @@ app.get('/api/logs/:service', async (req, res) => {
 });
 
 // Fallback: serve index.html
-app.get('*', (_req, res) => {
+app.get('/{*splat}', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

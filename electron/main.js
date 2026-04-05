@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import path from 'path';
-import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
+import { runDockerCompose } from '../lib/docker.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,25 +35,10 @@ function createWindow() {
   }
 }
 
-// Helper: run docker-compose and return stdout
-function runDockerCompose(args) {
-  return new Promise((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
-    const proc = spawn('docker-compose', args, { cwd: PROJECT_ROOT });
-    proc.stdout.on('data', (d) => { stdout += d.toString(); });
-    proc.stderr.on('data', (d) => { stderr += d.toString(); });
-    proc.on('close', (code) => {
-      if (code === 0) resolve(stdout.trim());
-      else reject(new Error(stderr.trim() || `exit code ${code}`));
-    });
-  });
-}
-
 // IPC: get service status
 ipcMain.handle('docker:status', async () => {
   try {
-    const raw = await runDockerCompose(['ps', '--format', 'json']);
+    const raw = await runDockerCompose(['ps', '--format', 'json'], PROJECT_ROOT);
     let containers = [];
     try {
       containers = JSON.parse(raw);
@@ -69,7 +54,7 @@ ipcMain.handle('docker:status', async () => {
 ipcMain.handle('docker:start', async (_event, service) => {
   try {
     const args = service ? ['up', '-d', service] : ['up', '-d'];
-    await runDockerCompose(args);
+    await runDockerCompose(args, PROJECT_ROOT);
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };
@@ -80,7 +65,7 @@ ipcMain.handle('docker:start', async (_event, service) => {
 ipcMain.handle('docker:stop', async (_event, service) => {
   try {
     const args = service ? ['stop', service] : ['stop'];
-    await runDockerCompose(args);
+    await runDockerCompose(args, PROJECT_ROOT);
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };
@@ -91,7 +76,7 @@ ipcMain.handle('docker:stop', async (_event, service) => {
 ipcMain.handle('docker:restart', async (_event, service) => {
   try {
     const args = service ? ['restart', service] : ['restart'];
-    await runDockerCompose(args);
+    await runDockerCompose(args, PROJECT_ROOT);
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };
@@ -101,7 +86,7 @@ ipcMain.handle('docker:restart', async (_event, service) => {
 // IPC: get logs for a service
 ipcMain.handle('docker:logs', async (_event, service) => {
   try {
-    const output = await runDockerCompose(['logs', '--tail', '100', service]);
+    const output = await runDockerCompose(['logs', '--tail', '100', service], PROJECT_ROOT);
     return { success: true, logs: output };
   } catch (err) {
     return { success: false, error: err.message, logs: '' };
