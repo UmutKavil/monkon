@@ -12,8 +12,8 @@ services:
     environment:
       - PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-512M}
       - MYSQL_HOST=mysql
-      - MYSQL_USER=monkon
-      - MYSQL_PASSWORD=monkon_password
+      - MYSQL_USER=${MYSQL_USER:-monkon}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-monkon_password}
     volumes:
       - ${MONKON_WEB_ROOT:-~/monkon/www}:/var/www/html
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
@@ -41,10 +41,10 @@ services:
     container_name: monkon-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-REPLACE_WITH_SECURE_ROOT_PASSWORD}
       MYSQL_DATABASE: monkon_dev
-      MYSQL_USER: monkon
-      MYSQL_PASSWORD: monkon_password
+      MYSQL_USER: ${MYSQL_USER:-monkon}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-monkon_password}
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     volumes:
@@ -60,8 +60,8 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
-      PMA_USER: monkon
-      PMA_PASSWORD: monkon_password
+      PMA_USER: ${MYSQL_USER:-monkon}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-monkon_password}
       PMA_PORT: 3306
     ports:
       - "8080:80"
