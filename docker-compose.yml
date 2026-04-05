@@ -19,11 +19,6 @@ services:
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
     networks:
       - monkon-network
-    healthcheck:
-      test: ["CMD", "php", "-v"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   # Apache Service
   apache:
@@ -37,10 +32,6 @@ services:
       - ${MONKON_WEB_ROOT:-~/monkon/www}:/var/www/html
       - ./docker/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
       - ./docker/apache/vhost.conf:/usr/local/apache2/conf.d/vhost.conf:ro
-      - monkon-apache-logs:/var/log/apache2
-    depends_on:
-      php:
-        condition: service_healthy
     networks:
       - monkon-network
 
@@ -61,11 +52,6 @@ services:
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
     networks:
       - monkon-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   # PhpMyAdmin Service
   phpmyadmin:
@@ -79,16 +65,11 @@ services:
       PMA_PORT: 3306
     ports:
       - "8080:80"
-    depends_on:
-      mysql:
-        condition: service_healthy
     networks:
       - monkon-network
 
 volumes:
   monkon-mysql-data:
-    driver: local
-  monkon-apache-logs:
     driver: local
 
 networks:

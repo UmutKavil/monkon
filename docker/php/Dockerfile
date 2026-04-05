@@ -6,8 +6,8 @@ FROM php:${PHP_VERSION}-fpm-alpine
 RUN apk add --no-cache \
     icu-dev \
     libpng-dev \
-    libjpeg-turbo-dev \
-    libfreetype6-dev \
+    jpeg-dev \
+    freetype-dev \
     zip \
     git \
     curl
