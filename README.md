@@ -53,12 +53,20 @@ npm run dev    # Open application
 ### 📋 Available Commands
 
 ```bash
-npm run start    # Start all Docker services
-npm run stop     # Stop all services
-npm run status   # Check service status
-npm run logs     # View service logs
-npm run dev      # Launch Electron desktop app
-npm run build    # Build installer
+# Services
+monkon start              # Start all Docker services
+monkon stop               # Stop all services
+monkon status             # Check service status
+monkon logs [service]     # View service logs
+monkon restart [service]  # Restart services
+
+# Dashboard
+monkon dashboard          # Launch web dashboard (localhost:3000)
+npm run dev               # Launch Electron desktop app
+
+# Configuration
+monkon config             # Show configuration
+npm run build             # Build installer
 ```
 
 ## 📁 Project Structure
@@ -86,10 +94,12 @@ monkon/
 
 ## 📚 Documentation
 
-- [Installation Guide](./docs/installation.md)
-- [Usage Guide](./docs/usage.md)
-- [Configuration](./docs/configuration.md)
-- [Architecture](./docs/architecture.md)
+- [Installation Guide](./docs/installation.md) - Setup instructions
+- [Getting Started](./docs/getting-started.md) - Quick reference
+- [CLI Commands](./docs/cli.md) - Command line tool
+- [Dashboard Guide](./docs/dashboard.md) - Desktop app UI
+- [Configuration](./docs/configuration.md) - Customization options
+- [Architecture](./docs/architecture.md) - How it works
 
 ## 🤝 Contributing
 

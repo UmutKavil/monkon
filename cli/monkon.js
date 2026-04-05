@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -118,14 +118,13 @@ program
   .action(() => {
     try {
       console.log(chalk.blue('\n🌐  Starting monkon dashboard...\n'));
-      
+
       // Start Express server
-      const { spawn } = require('child_process');
       const server = spawn('node', [path.join(__dirname, '../dashboard/server.js')], {
         detached: true,
         stdio: 'pipe'
       });
-      
+
       let started = false;
       server.stdout?.on('data', (data) => {
         const msg = data.toString();
