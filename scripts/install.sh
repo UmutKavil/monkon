@@ -61,13 +61,26 @@ fi
 echo ""
 echo -e "${YELLOW}📦 Installing monkon CLI...${NC}"
 
-npm install -g . 2>/dev/null || {
+npm link 2>/dev/null || {
     echo -e "${YELLOW}Installing npm dependencies first...${NC}"
     npm install
-    npm install -g .
+    npm link
 }
 
 echo -e "${GREEN}✓ monkon CLI installed globally${NC}"
+
+# Create desktop launcher
+echo ""
+echo -e "${YELLOW}🖱️  Creating desktop launcher...${NC}"
+
+cat > ~/Desktop/monkon.command << 'LAUNCHER'
+#!/bin/bash
+cd "$(dirname "$0")/../Desktop/monkonom"
+./monkon.sh
+LAUNCHER
+
+chmod +x ~/Desktop/monkon.command
+echo -e "${GREEN}✓ Desktop launcher created${NC}"
 
 # Create sample PHP file
 echo ""

@@ -1,64 +1,64 @@
 class Monkon < Formula
-  desc "Modern XAMPP replacement for macOS with Docker"
+  desc "⚡ Modern XAMPP replacement - PHP, MySQL, Apache in one app for macOS"
   homepage "https://github.com/UmutKavil/monkon"
-  url "https://github.com/UmutKavil/monkon/archive/v#{version}.tar.gz"
-  sha256 "placeholder_sha256_hash"
-  version "0.1.0"
+  url "https://github.com/UmutKavil/monkon/archive/refs/tags/v0.1.0.tar.gz"
+  sha256 "TODO_ADD_SHA256_CHECKSUM_HERE"
+  license "MIT"
 
   depends_on "node"
   depends_on "docker"
 
   def install
-    # Install npm dependencies
-    system "npm", "install", "--prefix=.", "--production"
+    # Install root dependencies
+    system "npm", "install", "--production"
 
-    # Install CLI globally
-    bin.install "cli/monkon.js"
-    bin.write_exec_script "#{bin}/monkon.js"
-
-    # Create directories
-    system "mkdir", "-p", "#{Dir.home}/.monkon"
-    system "mkdir", "-p", "#{Dir.home}/monkon/www"
-    system "mkdir", "-p", "#{Dir.home}/monkon/data"
-
-    # Copy config file if not exists
-    config_file = "#{Dir.home}/.monkon/config"
-    unless File.exist?(config_file)
-      system "cp", ".env.example", config_file
+    # Install Electron dependencies
+    inside "electron" do
+      system "npm", "install", "--production"
     end
 
-    # Copy docker files
-    system "cp", "-r", "docker", "#{libexec}/docker"
-    system "cp", "-r", "docker-compose.yml", "#{libexec}/docker-compose.yml"
+    # Install monkon CLI
+    bin.install_symlink "cli/monkon.js", "monkon"
 
-    # Create wrapper script
-    (bin/"monkon-start").write_text <<~EOS
-      #!/bin/bash
-      cd #{libexec}
-      docker-compose up -d
-    EOS
-    (bin/"monkon-stop").write_text <<~EOS
-      #!/bin/bash
-      cd #{libexec}
-      docker-compose stop
-    EOS
+    # Create directories
+    (var/"monkon/www").mkpath
+    (var/"monkon/data").mkpath
+    (etc/"monkon").mkpath
+
+    # Copy configuration
+    cp ".env.example", "#{etc}/monkon/.env"
+
+    # Copy Docker files
+    (libexec/"docker").install Dir["docker/*"]
+    cp "docker-compose.yml", "#{libexec}/docker-compose.yml"
   end
 
   def post_install
     puts ""
-    puts "✅ monkon has been installed!"
+    puts "✨ monkon #{version} installed successfully!"
     puts ""
-    puts "Next steps:"
-    puts "  1. Start services: monkon start"
-    puts "  2. Open: http://localhost"
-    puts "  3. Check status: monkon status"
+    puts "📁 Directories created:"
+    puts "  Web Root:  #{var}/monkon/www"
+    puts "  Data:      #{var}/monkon/data"
+    puts "  Config:    #{etc}/monkon/.env"
     puts ""
-    puts "Web Root: #{Dir.home}/monkon/www"
-    puts "Config: #{Dir.home}/.monkon/config"
+    puts "🚀 Get started:"
+    puts "  monkon --help           Show all commands"
+    puts "  monkon start            Start all services"
+    puts "  monkon status           Check service status"
+    puts "  monkon logs             View service logs"
+    puts ""
+    puts "🌐 Access services:"
+    puts "  Apache:     http://localhost"
+    puts "  PhpMyAdmin: http://localhost:8080"
+    puts "  MySQL:      localhost:3306"
+    puts ""
+    puts "📚 Documentation: https://github.com/UmutKavil/monkon"
     puts ""
   end
 
   test do
-    system "#{bin}/monkon.js", "--version"
+    system "#{bin}/monkon", "--version"
   end
 end
+
