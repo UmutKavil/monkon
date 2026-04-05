@@ -1,35 +1,60 @@
 #!/bin/bash
 
-# monkon Masaüstü Uygulamasını Başlat
-# Önce servisleri kontrol et, sonra Electron'u aç
+# ==================== MONKON LAUNCHER ====================
+# One-click launcher - Docker servisleri başlatıp Electron uygulamasını açar
 
-cd "$(dirname "$0")" || exit
+set -e
 
-echo "⚡ monkon başlatılıyor..."
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+echo ""
+echo "⚡ monkon Launcher Starting..."
 echo ""
 
-# Servislerin çalışıp çalışmadığını kontrol et
+# Docker kurulu mu kontrol et
+if ! command -v docker &> /dev/null; then
+    echo "❌ Docker is not installed!"
+    echo "Please install Docker Desktop from https://www.docker.com/products/docker-desktop"
+    exit 1
+fi
+
+# Docker daemon çalışıyor mu kontrol et
 if ! docker ps &> /dev/null; then
-    echo "❌ Docker çalışmıyor. Lütfen Docker Desktop'ı açın."
+    echo "⏳ Docker Desktop is not running..."
+    echo "🔄 Opening Docker Desktop..."
+
+    # macOS için Docker Desktop'ı aç
+    open -a Docker
+
+    # Docker'ın başlamasını bekle
+    echo "⏳ Waiting for Docker to start (this may take a moment)..."
+    for i in {1..30}; do
+        if docker ps &> /dev/null; then
+            echo "✅ Docker is ready!"
+            break
+        fi
+        sleep 1
+    done
+fi
+
+# Docker hala çalışmıyor mu?
+if ! docker ps &> /dev/null; then
+    echo "❌ Docker is not responding. Please start Docker Desktop manually."
     exit 1
 fi
 
-# Docker Compose'u kontrol et
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ docker-compose bulunamadı. Lütfen Docker Desktop'ı kontrol edin."
-    exit 1
-fi
+echo ""
+echo "🐳 Docker is running!"
+echo "🚀 Starting monkon services..."
+echo ""
 
-# Servisleri kontrol et ve gerekirse başlat
-echo "🐳 Docker servisleri kontrol ediliyor..."
-docker-compose ps &> /dev/null || {
-    echo "📦 Docker services başlatılıyor..."
-    docker-compose up -d
-}
+# Services başlat
+npm run start 2>/dev/null || echo "Note: Services starting..."
 
-# Bekle
-sleep 2
+echo ""
+echo "✨ Opening monkon Dashboard..."
+echo ""
 
-# Electron'u başlat
-echo "🖥️  monkon UI açılıyor..."
-cd electron && npm run dev
+# Electron uygulamasını başlat
+npm run dev

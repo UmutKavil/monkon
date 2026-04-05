@@ -24,39 +24,42 @@ Modern, developer-friendly alternative to XAMPP for macOS.
 
 ## 🚀 Quick Start
 
-### Installation (Coming Soon)
+### 🖱️ **Easiest Way - One Click!**
 
-```bash
-# Via Homebrew
-brew install monkon
-
-# Or download DMG from GitHub
-# https://github.com/UmutKavil/monkon/releases
+**Double-click on Desktop:**
+```
+📁 monkon.command
 ```
 
-### Usage
+This will automatically:
+1. ✅ Check if Docker Desktop is running
+2. ✅ Start Docker Desktop if needed
+3. ✅ Launch all services (PHP, MySQL, Apache, PhpMyAdmin)
+4. ✅ Open the desktop application
 
-**Easiest Way:**
+That's it! Everything is ready to use. 🎉
+
+### 🖥️ Or from Terminal:
+
 ```bash
+# Start everything with one command
 ./monkon.sh
-```
-This starts everything with one click! ⚡
 
-**Or manually:**
+# Or separately:
+npm run start  # Start services
+npm run dev    # Open application
+```
+
+### 📋 Available Commands
 
 ```bash
-# 1. Start Docker services
-npm run start
-
-# 2. Open desktop app
-npm run dev
+npm run start    # Start all Docker services
+npm run stop     # Stop all services
+npm run status   # Check service status
+npm run logs     # View service logs
+npm run dev      # Launch Electron desktop app
+npm run build    # Build installer
 ```
-
-### What's Inside
-- ✅ Docker services (PHP, MySQL, Apache, PhpMyAdmin)
-- ✅ Command-line control (`monkon` commands)
-- ✅ Native desktop application (not web!)
-- ✅ Real-time service management
 
 ## 📁 Project Structure
 

@@ -101,6 +101,22 @@ ipcMain.handle('docker:logs', async (event, service) => {
 
 app.on('ready', () => {
   console.log('\n⚡ monkon Masaüstü Uygulaması Başlıyor...\n');
+
+  // Auto-start Docker services if not running
+  console.log('🐳 Checking Docker services...');
+  spawn('docker-compose', ['ps'], {
+    cwd: path.join(__dirname, '..'),
+    stdio: 'pipe'
+  }).on('close', (code) => {
+    if (code !== 0) {
+      console.log('📦 Starting Docker services...');
+      spawn('docker-compose', ['up', '-d'], {
+        cwd: path.join(__dirname, '..'),
+        stdio: 'ignore'
+      });
+    }
+  });
+
   createWindow();
 
   const menu = Menu.buildFromTemplate([
