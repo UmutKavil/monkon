@@ -23,8 +23,12 @@ function createWindow() {
     },
   });
 
-  // Load the Vite-built output
-  mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+  // Load the Vite dev server in development, built output in production
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.loadURL('http://localhost:5173');
+  } else {
+    mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;

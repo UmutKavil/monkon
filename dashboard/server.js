@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Simple in-memory rate limiter for the logs endpoint
 const logRateLimit = new Map();
-const LOG_RATE_LIMIT_MS = 2000; // max one logs request per service per 2 seconds
+const LOG_RATE_LIMIT_MS = Number(process.env.LOG_RATE_LIMIT_MS) || 2000;
 
 function isLogsRateLimited(key) {
   const now = Date.now();
@@ -96,11 +96,6 @@ app.get('/api/logs/:service', async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
-});
-
-// Fallback: serve index.html
-app.get('/{*splat}', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 server.listen(PORT, () => {

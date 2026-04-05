@@ -5,6 +5,8 @@ import Logs from './components/Logs';
 import SettingsPanel from './components/Settings';
 import './index.css';
 
+const STATUS_POLL_INTERVAL_MS = 5000;
+
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [services, setServices] = useState([]);
@@ -12,7 +14,7 @@ function App() {
 
   useEffect(() => {
     fetchStatus();
-    const interval = setInterval(fetchStatus, 5000);
+    const interval = setInterval(fetchStatus, STATUS_POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 

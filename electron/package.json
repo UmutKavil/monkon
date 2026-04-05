@@ -5,7 +5,7 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "dev": "vite build --watch & electron .",
+    "dev": "NODE_ENV=development electron .",
     "build": "vite build && electron-builder",
     "pack": "vite build && electron-builder --dir",
     "dist": "vite build && electron-builder",
