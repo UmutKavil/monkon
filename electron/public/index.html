@@ -74,7 +74,13 @@
         <section id="dashboard" class="page active">
           <!-- Server Status Grid -->
           <div class="section">
-            <h2>Server Status</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h2>Server Status</h2>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary btn-sm" onclick="handleAllServices('start-all')">▶️ Start All</button>
+                <button class="btn btn-danger btn-sm" onclick="handleAllServices('stop-all')">⏹️ Stop All</button>
+              </div>
+            </div>
             <div class="servers-list" id="serversList">
               <div class="loading">
                 <div class="spinner"></div>

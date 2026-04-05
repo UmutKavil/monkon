@@ -12,6 +12,17 @@ const serversList = document.getElementById('serversList');
 const serversDetailed = document.getElementById('serversDetailed');
 const activityLog = document.getElementById('activityLog');
 
+// Add Start/Stop All buttons listener
+document.addEventListener('DOMContentLoaded', () => {
+  const startAllBtn = document.querySelector('button[onclick*="startAll"]') ||
+    Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Start All'));
+  const stopAllBtn = document.querySelector('button[onclick*="stopAll"]') ||
+    Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Stop All'));
+
+  if (startAllBtn) startAllBtn.addEventListener('click', () => handleAllServices('start-all'));
+  if (stopAllBtn) stopAllBtn.addEventListener('click', () => handleAllServices('stop-all'));
+});
+
 // ==================== NAVIGATION ====================
 navItems.forEach(item => {
   item.addEventListener('click', (e) => {
@@ -128,7 +139,15 @@ function renderServersDetailed() {
 }
 
 async function handleService(name, action) {
+  addActivityLog(`${action.charAt(0).toUpperCase() + action.slice(1)} ${name}...`);
   await docker.execute(action, name);
+  await loadServices();
+}
+
+async function handleAllServices(action) {
+  const actionText = action === 'start-all' ? 'Starting' : 'Stopping';
+  addActivityLog(`${actionText} all services...`);
+  await docker.execute(action);
   await loadServices();
 }
 

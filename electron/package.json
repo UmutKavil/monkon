@@ -2,6 +2,7 @@
   "name": "monkon-desktop",
   "version": "0.1.0",
   "description": "monkon Desktop Application",
+  "type": "module",
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
