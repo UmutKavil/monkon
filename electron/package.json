@@ -5,16 +5,22 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "dev": "electron .",
-    "build": "electron-builder",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dev": "vite build --watch & electron .",
+    "build": "vite build && electron-builder",
+    "pack": "vite build && electron-builder --dir",
+    "dist": "vite build && electron-builder",
+    "vite:build": "vite build"
   },
   "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.462.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
     "electron": "^30.0.0",
-    "electron-builder": "^24.6.4"
+    "electron-builder": "^24.6.4",
+    "vite": "^5.4.0"
   },
   "build": {
     "appId": "com.monkon.app",
@@ -22,7 +28,7 @@
     "files": [
       "main.js",
       "preload.js",
-      "public/**/*",
+      "dist/**/*",
       "node_modules/**/*"
     ],
     "mac": {

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ monkon Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4ade80;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --bg-dark: #0a0f1a;
+      --border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card.running { border-left: 4px solid var(--primary); }
+    .card.stopped { border-left: 4px solid var(--danger); }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.running { background: rgba(74,222,128,.15); color: var(--primary); }
+    .badge.stopped { background: rgba(239,68,68,.15); color: var(--danger); }
+
+    .card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .btn-primary { background: var(--primary); color: #0a0f1a; }
+    .btn-danger  { background: var(--danger);  color: #fff; }
+    .btn-ghost   { background: var(--border);  color: var(--text); }
+
+    .bulk-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .logs-section { margin-top: 40px; }
+
+    .logs-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    select, input {
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .logs-box {
+      background: #020817;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      height: 300px;
+      overflow: auto;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #a3e635;
+      white-space: pre-wrap;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">⚡ monkon</div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="refresh()">↻ Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="bulk-actions">
+      <button class="btn btn-primary" onclick="bulkAction('start')">▶ Start All</button>
+      <button class="btn btn-danger"  onclick="bulkAction('stop')">■ Stop All</button>
+    </div>
+
+    <h2>Services</h2>
+    <div class="services-grid" id="servicesGrid">
+      <div class="card"><div class="spinner"></div> Loading...</div>
+    </div>
+
+    <div class="logs-section">
+      <h2>Logs</h2>
+      <div class="logs-controls">
+        <select id="logService">
+          <option value="">Select service...</option>
+          <option value="php">PHP-FPM</option>
+          <option value="apache">Apache</option>
+          <option value="mysql">MySQL</option>
+          <option value="phpmyadmin">PhpMyAdmin</option>
+        </select>
+        <input type="number" id="logLines" value="100" min="10" max="1000" style="width:80px" />
+        <button class="btn btn-ghost" onclick="fetchLogs()">Load Logs</button>
+      </div>
+      <div class="logs-box" id="logsBox">Select a service to view logs.</div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    const SERVICE_ICONS = { php: '🐘', apache: '🪶', mysql: '🐬', phpmyadmin: '🗄️' };
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
+    async function api(method, url, body) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(url, opts);
+      return res.json();
+    }
+
+    async function refresh() {
+      const data = await api('GET', '/api/status');
+      const grid = document.getElementById('servicesGrid');
+
+      if (!data.success || !data.containers.length) {
+        grid.innerHTML = '<div class="card"><p style="color:var(--text-muted)">No services found. Are Docker services running?</p></div>';
+        return;
+      }
+
+      grid.innerHTML = data.containers.map(c => {
+        const name = (c.Service || c.Names || '').replace('monkon-', '');
+        const running = c.State === 'running';
+        const icon = SERVICE_ICONS[name] || '📦';
+        return `
+          <div class="card ${running ? 'running' : 'stopped'}">
+            <div class="card-header">
+              <div class="card-name">${icon} ${name.toUpperCase()}</div>
+              <span class="badge ${running ? 'running' : 'stopped'}">${running ? '● Running' : '○ Stopped'}</span>
+            </div>
+            <div class="card-meta">
+              ID: ${(c.ID || '').slice(0, 12)}<br>
+              Ports: ${c.Ports || '—'}
+            </div>
+            <div class="card-actions">
+              ${running
+                ? `<button class="btn btn-danger" onclick="serviceAction('stop','${name}')">Stop</button>`
+                : `<button class="btn btn-primary" onclick="serviceAction('start','${name}')">Start</button>`
+              }
+              <button class="btn btn-ghost" onclick="serviceAction('restart','${name}')">Restart</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function serviceAction(action, service) {
+      toast(`${action} ${service}...`);
+      await api('POST', `/api/${action}`, { service });
+      await refresh();
+      toast(`${service} ${action}ed`);
+    }
+
+    async function bulkAction(action) {
+      toast(`${action === 'start' ? 'Starting' : 'Stopping'} all services...`);
+      await api('POST', `/api/${action}`, {});
+      await refresh();
+      toast(`All services ${action}ed`);
+    }
+
+    async function fetchLogs() {
+      const service = document.getElementById('logService').value;
+      const lines = document.getElementById('logLines').value;
+      if (!service) { toast('Select a service first'); return; }
+      const box = document.getElementById('logsBox');
+      box.textContent = 'Loading logs...';
+      const data = await api('GET', `/api/logs/${service}?lines=${lines}`);
+      box.textContent = data.success ? (data.logs || '(no logs)') : `Error: ${data.error}`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // Auto-refresh every 5 seconds
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</body>
+</html>
