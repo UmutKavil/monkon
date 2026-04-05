@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Square, RefreshCw, Terminal, Settings, Zap } from 'lucide-react';
+import { RefreshCw, Terminal, Settings as SettingsIcon, Zap } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Logs from './components/Logs';
-import Settings from './components/Settings';
-import './App.css';
+import SettingsPanel from './components/Settings';
+import './index.css';
+
+const STATUS_POLL_INTERVAL_MS = 5000;
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -12,7 +14,7 @@ function App() {
 
   useEffect(() => {
     fetchStatus();
-    const interval = setInterval(fetchStatus, 5000); // Update every 5 seconds
+    const interval = setInterval(fetchStatus, STATUS_POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
@@ -32,24 +34,24 @@ function App() {
   const handleStart = async (service) => {
     setLoading(true);
     try {
-      const result = await window.electron.docker.start(service);
-      if (result.success) {
-        await fetchStatus();
-      }
+      await window.electron.docker.start(service);
+      await fetchStatus();
     } catch (error) {
       console.error('Error starting service:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleStop = async (service) => {
     setLoading(true);
     try {
-      const result = await window.electron.docker.stop(service);
-      if (result.success) {
-        await fetchStatus();
-      }
+      await window.electron.docker.stop(service);
+      await fetchStatus();
     } catch (error) {
       console.error('Error stopping service:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,7 +78,7 @@ function App() {
           className={`nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
-          <Play size={18} />
+          <Zap size={18} />
           Dashboard
         </button>
         <button
@@ -90,7 +92,7 @@ function App() {
           className={`nav-btn ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
-          <Settings size={18} />
+          <SettingsIcon size={18} />
           Settings
         </button>
       </nav>
@@ -105,7 +107,7 @@ function App() {
           />
         )}
         {activeTab === 'logs' && <Logs />}
-        {activeTab === 'settings' && <Settings />}
+        {activeTab === 'settings' && <SettingsPanel />}
       </main>
     </div>
   );

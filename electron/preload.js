@@ -2,8 +2,10 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
   docker: {
-    getServices: () => ipcRenderer.invoke('docker:services'),
-    execute: (action, service) => ipcRenderer.invoke('docker:command', action, service),
-    getLogs: (service) => ipcRenderer.invoke('docker:logs', service)
-  }
+    status: () => ipcRenderer.invoke('docker:status'),
+    start: (service) => ipcRenderer.invoke('docker:start', service),
+    stop: (service) => ipcRenderer.invoke('docker:stop', service),
+    restart: (service) => ipcRenderer.invoke('docker:restart', service),
+    logs: (service) => ipcRenderer.invoke('docker:logs', service),
+  },
 });
